@@ -24,7 +24,7 @@ export class EcrStack extends AwsProviderStack {
         },
       });
 
-      // Create Terraform output for this repo URI
+      // Output for this repo URI
       new TerraformOutput(this, `EcrRepoUri${idx}`, {
         value: ecrRepo.repositoryUrl,
         description: `URI of the ECR repository ${repoConfig.name}`,
