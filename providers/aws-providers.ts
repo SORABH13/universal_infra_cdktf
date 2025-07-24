@@ -1,12 +1,14 @@
-import { Construct } from 'constructs';
-import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
+import { TerraformStack } from "cdktf";
+import { Construct } from "constructs";
+import { AwsProvider } from "@cdktf/provider-aws/lib/provider";
+import { globalConfig } from "../config/global";
 
-export class AwsProviderConfig extends Construct {
-  constructor(scope: Construct, id: string, region: string) {
+export class AwsProviderStack extends TerraformStack {
+  constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    new AwsProvider(this, 'aws', {
-      region
+    new AwsProvider(this, "aws", {
+      region: globalConfig.defaultRegion,
     });
   }
 }
