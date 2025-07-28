@@ -1,5 +1,5 @@
 export const globalConfig = {
-    projectName: 'UniversalInfra',
+    projectName: 'universalinfra',
     costCenter: 'CC12345',
     defaultRegion: 'ap-south-1',
     defaultTags: {

@@ -1,7 +1,7 @@
 import { Construct } from "constructs";
 import { EcrRepository } from "@cdktf/provider-aws/lib/ecr-repository";
 import { TerraformOutput } from "cdktf";
-import { globalConfig } from "../../config/global";
+import { globalConfig as G } from "../../config/global";
 import { AwsProviderStack } from "../../providers/aws-providers";
 import { devConfig } from "../../config/dev";
 
@@ -9,7 +9,7 @@ export class EcrStack extends AwsProviderStack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const repoName = globalConfig.projectName.toLowerCase().replace(/[^a-z0-9._/-]/g, "-");
+    const repoName = G.projectName.toLowerCase().replace(/[^a-z0-9._/-]/g, "-");
 
     devConfig.ecr.forEach((repoConfig, idx) => {
       const ecrRepo = new EcrRepository(this, `EcrRepo${idx}`, {
@@ -19,7 +19,7 @@ export class EcrStack extends AwsProviderStack {
           scanOnPush: repoConfig.scanOnPush,
         },
         tags: {
-          ...globalConfig.defaultTags,
+          ...G.defaultTags,
           Name: `${repoName}-${repoConfig.name}`,
         },
       });

@@ -1,0 +1,40 @@
+# name: Deploy CDKTF Stack
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       environment:
+#         description: 'Environment to deploy (dev, uat, prod)'
+#         required: true
+#         default: 'dev'
+#       cloud:
+#         description: 'Cloud provider (aws)'
+#         required: true
+#         default: 'aws'
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+
+#       - name: Install dependencies
+#         run: npm install
+
+#       - name: Install CDKTF
+#         run: npm install -g cdktf-cli
+
+#       - name: Set ENV vars
+#         run: |
+#           echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+#           echo "CLOUD=${{ github.event.inputs.cloud }}" >> $GITHUB_ENV
+
+#       - name: Deploy stack
+#         run: ./deploy.sh ${{ github.event.inputs.environment }} ${{ github.event.inputs.cloud }}
