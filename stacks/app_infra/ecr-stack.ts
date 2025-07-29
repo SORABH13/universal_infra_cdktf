@@ -3,28 +3,38 @@ import { EcrRepository } from "@cdktf/provider-aws/lib/ecr-repository";
 import { TerraformOutput } from "cdktf";
 import { globalConfig as G } from "../../config/global";
 import { AwsProviderStack } from "../../providers/aws-providers";
-import { devConfig } from "../../config/dev";
+
+interface EcrConfigItem {
+  name: string;
+  mutable: boolean;
+  scanOnPush: boolean;
+}
+
+interface EcrStackConfig {
+  ecr: EcrConfigItem[];
+}
 
 export class EcrStack extends AwsProviderStack {
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, config: EcrStackConfig) {
     super(scope, id);
 
-    const repoName = G.projectName.toLowerCase().replace(/[^a-z0-9._/-]/g, "-");
+    const repoNameBase = G.projectName.toLowerCase().replace(/[^a-z0-9._/-]/g, "-");
 
-    devConfig.ecr.forEach((repoConfig, idx) => {
+    config.ecr.forEach((repoConfig, idx) => {
+      const fullRepoName = `${repoNameBase}-${repoConfig.name}`;
+
       const ecrRepo = new EcrRepository(this, `EcrRepo${idx}`, {
-        name: `${repoName}-${repoConfig.name}`,
+        name: fullRepoName,
         imageTagMutability: repoConfig.mutable ? "MUTABLE" : "IMMUTABLE",
         imageScanningConfiguration: {
           scanOnPush: repoConfig.scanOnPush,
         },
         tags: {
           ...G.defaultTags,
-          Name: `${repoName}-${repoConfig.name}`,
+          Name: fullRepoName,
         },
       });
 
-      // Output for this repo URI
       new TerraformOutput(this, `EcrRepoUri${idx}`, {
         value: ecrRepo.repositoryUrl,
         description: `URI of the ECR repository ${repoConfig.name}`,

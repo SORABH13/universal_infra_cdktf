@@ -1,40 +1,66 @@
-# name: Deploy CDKTF Stack
+name: 🚀 CDKTF Deploy - Dev
 
-# on:
-#   workflow_dispatch:
-#     inputs:
-#       environment:
-#         description: 'Environment to deploy (dev, uat, prod)'
-#         required: true
-#         default: 'dev'
-#       cloud:
-#         description: 'Cloud provider (aws)'
-#         required: true
-#         default: 'aws'
+permissions:
+  id-token: write
+  contents: read
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+on:
+  workflow_dispatch:
+    inputs:
+      cloud:
+        description: "Cloud Provider"
+        required: true
+        type: string
+        default: "aws"
+      env:
+        description: "Environment"
+        required: true
+        type: string
+        default: "dev"
 
-#     steps:
-#       - name: Checkout repo
-#         uses: actions/checkout@v3
+jobs:
+  cdktf-deploy:
+    name: 🌍 Deploy via CDKTF
+    runs-on: ubuntu-latest
 
-#       - name: Setup Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: '18'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
 
-#       - name: Install dependencies
-#         run: npm install
+      # 🔐 AWS Auth via OIDC
+      - name: 🔐 Configure AWS Credentials
+        if: github.event.inputs.cloud == 'aws'
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::141454182275:role/github_pipeline
+          aws-region: ap-south-1
 
-#       - name: Install CDKTF
-#         run: npm install -g cdktf-cli
+      # 🔐 Azure Login if needed
+      - name: 🔐 Azure Login
+        if: github.event.inputs.cloud == 'azure'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-#       - name: Set ENV vars
-#         run: |
-#           echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-#           echo "CLOUD=${{ github.event.inputs.cloud }}" >> $GITHUB_ENV
+      # 🧱 Install CDKTF CLI
+      - name: 📦 Install CDKTF CLI
+        run: npm install -g cdktf-cli
 
-#       - name: Deploy stack
-#         run: ./deploy.sh ${{ github.event.inputs.environment }} ${{ github.event.inputs.cloud }}
+      # 📜 Install dependencies
+      - name: 📦 Install project dependencies
+        run: npm install
+      
+      - name: Set ENV variable
+        run: echo "ENV=${{ github.event.inputs.env }}" >> $GITHUB_ENV
+        
+      # 🔧 Get Providers and Synthesize
+      - name: 🔄 CDKTF Get & Synth
+        run: |
+          cdktf get
+          cdktf synth
+
+      # 🚀 Deploy Specific CDKTF Stack
+      - name: 🚀 Deploy CDKTF Stack
+        run: cdktf deploy --auto-approve
