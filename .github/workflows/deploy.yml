@@ -63,4 +63,4 @@ jobs:
 
       # 🚀 Deploy Specific CDKTF Stack
       - name: 🚀 Deploy CDKTF Stack
-        run: cdktf deploy --all --auto-approve
+        run: cdktf deploy --auto-approve
